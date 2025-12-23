@@ -1,0 +1,14 @@
+app:
+  treasury:
+    base-url: https://api.fiscaldata.treasury.gov/services/api/fiscal_service
+
+feign:
+  client:
+    config:
+      treasuryFiscalDataClient:
+        connectTimeout: 5000
+        readTimeout: 10000
+
+spring:
+  application:
+    name: wex-transaction
