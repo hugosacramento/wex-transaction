@@ -71,9 +71,13 @@ The project follows **Clean Architecture** principles, separating business rules
 
 ### Running the application
 
+```bash
 ./mvnw spring-boot:run
+```
 
 ### Docker
 
+```bash
 docker build -t wex-transaction .
 docker run --rm -p 8080:8080 wex-transaction
+```
