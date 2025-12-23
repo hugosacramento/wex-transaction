@@ -96,4 +96,75 @@ class PurchaseControllerTest {
         verifyNoInteractions(createTransactionUsecase, searchPurchaseUsecase, mapper);
     }
 
+    @Test
+    void retrievePurchaseTransaction_shouldReturn200AndJson() throws Exception {
+        Long id = 99L;
+        String countryCurrency = "Canada-Dollar";
+
+        ConvertedTransaction converted = new ConvertedTransaction(
+                id,
+                "Office supplies",
+                LocalDate.of(2025, 12, 1),
+                new BigDecimal("10.50"),
+                new BigDecimal("1.549"),
+                new BigDecimal("6.78")
+        );
+
+        ConvertedTransactionResponse response = new ConvertedTransactionResponse(
+                converted.id(),
+                converted.description(),
+                converted.transactionDate(),
+                converted.amount(),
+                converted.exchangeRate(),
+                converted.convertedAmount()
+        );
+
+        when(searchPurchaseUsecase.execute(id, countryCurrency)).thenReturn(converted);
+        when(mapper.toConvertedResponse(converted)).thenReturn(response);
+
+        mockMvc.perform(get("/purchase/transaction/{id}/convert", id)
+                        .param("country_currency", countryCurrency)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(99))
+                .andExpect(jsonPath("$.description").value("Office supplies"))
+                .andExpect(jsonPath("$.transactionDate").value("2025-12-01"))
+                .andExpect(jsonPath("$.amount").value(10.50))
+                .andExpect(jsonPath("$.exchangeRate").value(1.549))
+                .andExpect(jsonPath("$.convertedAmount").value(6.78));
+
+        verify(searchPurchaseUsecase).execute(id, countryCurrency);
+        verify(mapper).toConvertedResponse(converted);
+        verifyNoMoreInteractions(createTransactionUsecase, searchPurchaseUsecase, mapper);
+    }
+
+    @Test
+    void retrievePurchaseTransaction_whenMissingCountryCurrency_shouldReturn400() throws Exception {
+        mockMvc.perform(get("/purchase/transaction/{id}/convert", 1L))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(createTransactionUsecase, searchPurchaseUsecase, mapper);
+    }
+
+    @Test
+    void retrievePurchaseTransaction_whenTransactionNotFound_shouldReturn404WithApiError() throws Exception {
+        Long id = 123L;
+        String countryCurrency = "Canada-Dollar";
+
+        when(searchPurchaseUsecase.execute(id, countryCurrency))
+                .thenThrow(new TransactionNotFoundException(id));
+
+        mockMvc.perform(get("/purchase/transaction/{id}/convert", id)
+                        .param("country_currency", countryCurrency)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Transaction not found"))
+                .andExpect(jsonPath("$.path").value("/purchase/transaction/123/convert"));
+
+        verify(searchPurchaseUsecase).execute(id, countryCurrency);
+        verifyNoMoreInteractions(createTransactionUsecase, searchPurchaseUsecase, mapper);
+    }
 }

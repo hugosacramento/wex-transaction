@@ -44,4 +44,14 @@ public class PurchaseController {
         return ResponseEntity.created(location).build();
     }
 
+    @GetMapping("/transaction/{id}/convert")
+    public ResponseEntity<ConvertedTransactionResponse> retrievePurchaseTransaction(@PathVariable @NotNull Long id,
+                                                                                    @RequestParam("country_currency") @NotBlank String countryCurrency) {
+        log.info("Converting transaction (id={}, countryCurrencyDesc={})", id, countryCurrency);
+        ConvertedTransaction transaction = searchPurchaseUsecase.execute(id, countryCurrency);
+        ConvertedTransactionResponse response = mapper.toConvertedResponse(transaction);
+
+        log.info("Conversion completed (id={}, countryCurrencyDesc={})", id, countryCurrency);
+        return ResponseEntity.ok(response);
+    }
 }

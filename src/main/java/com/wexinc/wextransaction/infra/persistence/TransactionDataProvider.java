@@ -20,6 +20,11 @@ public class TransactionDataProvider implements TransactionGateway {
     private final TransactionEntityMapper mapper;
 
     @Override
+    public Optional<Transaction> findById(Long id) {
+        log.info("Finding transaction by id={}", id);
+        return transactionRepository.findById(id).map(mapper::toDomain);
+    }
+    @Override
     public Transaction save(Transaction transaction) {
         log.info("Saving transaction {}", transaction);
         TransactionEntity entity = transactionRepository.save(mapper.toEntity(transaction));

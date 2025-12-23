@@ -10,4 +10,5 @@ import org.mapstruct.Mapper;
 public interface TransactionDtoMapper {
 
     Transaction toDomain(CreateTransactionRequest dto);
+    ConvertedTransactionResponse toConvertedResponse(ConvertedTransaction dto);
 }
