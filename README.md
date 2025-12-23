@@ -56,7 +56,7 @@ The project follows **Clean Architecture** principles, separating business rules
 
 ### Convert Transaction
 
-**GET** `/purchase/transaction/{id}/convert?country_currency=Canada-Dollar`
+**GET** `/purchase/transaction/{id}/convert?country_currency={country_currency}`
 
 ```json
 {
