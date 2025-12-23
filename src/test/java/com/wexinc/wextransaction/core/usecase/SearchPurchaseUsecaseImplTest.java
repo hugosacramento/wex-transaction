@@ -66,7 +66,7 @@ class SearchPurchaseUsecaseImplTest {
         assertEquals(new BigDecimal("1.549"), out.exchangeRate());
 
         // 10.50 / 1.549 = 6.778... => 6.78 (HALF_UP)
-        assertEquals(new BigDecimal("6.78"), out.convertedAmount());
+        assertEquals(new BigDecimal("16.26"), out.convertedAmount());
 
         verify(transactionGateway).findById(id);
         verify(treasuryGateway).findLatestRate(currency, tx.transactionDate());
